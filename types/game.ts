@@ -23,11 +23,22 @@ export type ActionType =
 // 3. EFFECTS
 export interface CardEffect {
   id: string;
-  trigger: TriggerType;
-  action: ActionType;
+  trigger?: TriggerType;
+  action?: ActionType;
   params?: Record<string, any>; // Additional parameters for the action (e.g., number of cards to draw)
   description: string;          // Description for the player to understand what the effect does
 }
+// Who chooses the target of the effect?
+export type ChooserType = 
+  | 'ACTOR'    // PLayer who played the card chooses
+  | 'TARGET'   // Player who is the target of the effect chooses
+  | 'RANDOM'   // The system chooses at random
+  | 'ALL';     // All players choose (e.g., all discard 1)
+// Where does the effect apply?
+export type TargetZone = 
+  | 'HAND'     // from the hand
+  | 'BOARD'    // from the board
+  | 'DECK';    // from the deck
 
 // 4. THE CARD
 export interface Card {
@@ -47,4 +58,29 @@ export interface Player {
   name: string;
   hand: Card[];            // The cards that the player has in their hand
   board: Card[];        // The cards that the player has played to the board (Tableau)
+}
+
+// 6. Card destination
+export type DestinationZone = 'HAND' | 'BOARD' | 'DISCARD';
+
+export interface DealRule {
+  property: 'suitOrColor' | 'templateId' | 'name'; // What we see on the card
+  matchValue: string;                              // The value that must match (e.g., "Blue")
+  destination: DestinationZone;                    // Where it goes (e.g., "BOARD")
+  isFaceUp: boolean;                               // Face up or face down?
+}
+
+export interface GameRules {
+  id: string;
+  name: string;
+  defaultDrawAmount: number;    // Base card draw amount for each player at the start of the game
+  dealRules: DealRule[];        // new rules for dealing cards
+}
+
+export interface Deck {
+  id: string;
+  name: string;
+  description?: string;
+  cards: Card[];
+  createdAt: number;
 }

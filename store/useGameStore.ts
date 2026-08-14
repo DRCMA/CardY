@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Card, Player } from '../types/game';
+import { Card, Player, GameRules, Deck } from '../types/game';
 
 interface GameState {
   players: Player[];
@@ -9,6 +9,7 @@ interface GameState {
   turnDirection: 1 | -1;
   
   // Game actions
+  startGame: (rules: GameRules) => void;
   addPlayer: (player: Player) => void;
   playCardToDiscard: (playerId: string, cardId: string) => void; 
   playCardToBoard: (playerId: string, cardId: string) => void;   
@@ -16,6 +17,9 @@ interface GameState {
   stealBoardCard: (playerId: string, targetPlayerId: string, cardId: string) => void;
   drawCard: (playerId: string, amount?: number) => void;
   flipBoardCard: (playerId: string, cardId: string) => void;
+  executeDiscard: (targetPlayerId: string, zone: 'HAND' | 'BOARD', amount: number, isRandom: boolean, selectedCardId?: string) => void;
+  saveDeck: (deck: Deck) => void;
+  setActiveDeck: (cards: Card[]) => void;
   nextTurn: () => void;
 }
 
@@ -26,13 +30,58 @@ export const useGameStore = create<GameState>((set) => ({
   currentPlayerIndex: 0,
   turnDirection: 1,
 
-  // 1. Add player to the game
+  // Start the game with the given rules
+  startGame: (rules) =>
+    set((state) => {
+      // Copy the players and their hands/boards to avoid mutating the original state
+      const updatedPlayers = state.players.map(player => ({
+        ...player,
+        hand: [...player.hand],
+        board: [...(player.board || [])]
+      }));
+
+      let remainingDeck = [...state.deck];
+
+      // Deal cards to each player based on the game rules
+      updatedPlayers.forEach(player => {
+        // Draw the corresponding cards from the deck 
+        const drawnCards = remainingDeck.splice(0, rules.defaultDrawAmount);
+
+        drawnCards.forEach(card => {
+          // Comprobamos si la carta cumple alguna regla especial de reparto
+          const specialRule = rules.dealRules.find(
+            rule => card[rule.property] === rule.matchValue
+          );
+
+          if (specialRule) {
+            // Si hay regla, aplicamos sus condiciones (ej: a la mesa, boca arriba)
+            const modifiedCard = { ...card, isFaceUp: specialRule.isFaceUp };
+            
+            if (specialRule.destination === 'BOARD') {
+              player.board.push(modifiedCard);
+            } else if (specialRule.destination === 'HAND') {
+              player.hand.push(modifiedCard);
+            }
+          } else {
+            // Si no hay regla especial, va a la mano boca abajo por defecto
+            player.hand.push({ ...card, isFaceUp: false });
+          }
+        });
+      });
+
+      return {
+        players: updatedPlayers,
+        deck: remainingDeck
+      };
+    }),
+
+  // Add player to the game
   addPlayer: (player) => 
     set((state) => ({
       players: [...state.players, { ...player, board: [] }]
     })),
 
-  // 2. Play card to discard pile
+  // Play card to discard pile
   playCardToDiscard: (playerId, cardId) => 
     set((state) => {
       const playerIndex = state.players.findIndex(p => p.id === playerId);
@@ -52,7 +101,7 @@ export const useGameStore = create<GameState>((set) => ({
       };
     }),
 
-  // 3. PLay card to board (Tabeau)
+  // PLay card to board (Tableau)
   playCardToBoard: (playerId, cardId) => 
     set((state) => {
       const playerIndex = state.players.findIndex(p => p.id === playerId);
@@ -75,7 +124,7 @@ export const useGameStore = create<GameState>((set) => ({
       return { players: updatedPlayers };
     }),
 
-  // 4. Destroy a card from the board and send it to the discard pile
+  // Destroy a card from the board and send it to the discard pile
   destroyBoardCard: (targetPlayerId, cardId) =>
     set((state) => {
       const targetIndex = state.players.findIndex(p => p.id === targetPlayerId);
@@ -96,7 +145,8 @@ export const useGameStore = create<GameState>((set) => ({
       };
     }),
 
-stealBoardCard: (playerId, targetPlayerId, cardId) =>
+  // Steal a card from another player's board
+  stealBoardCard: (playerId, targetPlayerId, cardId) =>
     set((state) => {
       // 1. Search for the player and the target player
       const playerIndex = state.players.findIndex(p => p.id === playerId);
@@ -124,7 +174,8 @@ stealBoardCard: (playerId, targetPlayerId, cardId) =>
 
       return { players: updatedPlayers };
     }),
-  // 5. Withraw cards from the deck and add them to the player's hand
+
+  // Withraw cards from the deck and add them to the player's hand
   drawCard: (playerId, amount = 1) => 
     set((state) => {
       if (state.deck.length === 0) return state;
@@ -148,27 +199,81 @@ stealBoardCard: (playerId, targetPlayerId, cardId) =>
       };
     }),
 
-    flipBoardCard: (playerId, cardId) =>
-  set((state) => {
-    const playerIndex = state.players.findIndex(p => p.id === playerId);
-    if (playerIndex === -1) return state;
+  // Flip a card on the board
+  flipBoardCard: (playerId, cardId) =>
+    set((state) => {
+      const playerIndex = state.players.findIndex(p => p.id === playerId);
+      if (playerIndex === -1) return state;
 
-    const player = state.players[playerIndex];
-    
-    // Find the card in the player's board and flip its isFaceUp property
-    const updatedBoard = player.board.map(card => {
-      if (card.id === cardId) {
-        return { ...card, isFaceUp: !card.isFaceUp };
+      const player = state.players[playerIndex];
+      
+      // Find the card in the player's board and flip its isFaceUp property
+      const updatedBoard = player.board.map(card => {
+        if (card.id === cardId) {
+          return { ...card, isFaceUp: !card.isFaceUp };
+        }
+        return card;
+      });
+
+      const updatedPlayers = [...state.players];
+      updatedPlayers[playerIndex] = { ...player, board: updatedBoard };
+
+      return { players: updatedPlayers };
+    }),
+
+  // Discard cards
+  executeDiscard: (targetPlayerId, zone, amount, isRandom, selectedCardId) =>
+    set((state) => {
+      const targetIndex = state.players.findIndex(p => p.id === targetPlayerId);
+      if (targetIndex === -1) return state;
+
+      const player = state.players[targetIndex];
+      const sourceArray = zone === 'HAND' ? player.hand : player.board;
+      
+      if (sourceArray.length === 0) return state;
+
+      let cardsToDiscard: Card[] = [];
+      let remainingCards = [...sourceArray];
+
+      if (isRandom) {
+        // Random discard: we shuffle the array and take the first 'amount' cards
+        const shuffled = [...sourceArray].sort(() => 0.5 - Math.random());
+        cardsToDiscard = shuffled.slice(0, amount);
+        remainingCards = sourceArray.filter(c => !cardsToDiscard.includes(c));
+      } else if (selectedCardId) {
+        // Choosed discard: we search for the card with the given ID and discard it
+        const card = sourceArray.find(c => c.id === selectedCardId);
+        if (card) {
+          cardsToDiscard = [card];
+          remainingCards = sourceArray.filter(c => c.id !== selectedCardId);
+        }
       }
-      return card;
-    });
 
-    const updatedPlayers = [...state.players];
-    updatedPlayers[playerIndex] = { ...player, board: updatedBoard };
+      // Save the changes in the state
+      const updatedPlayers = [...state.players];
+      updatedPlayers[targetIndex] = {
+        ...player,
+        [zone === 'HAND' ? 'hand' : 'board']: remainingCards
+      };
 
-    return { players: updatedPlayers };
-  }),
+      return {
+        players: updatedPlayers,
+        discardPile: [...state.discardPile, ...cardsToDiscard]
+      };
+    }),
+    
+    saveDeck: (newDeck) =>
+    set((state) => ({
+      savedDecks: [
+        ...state.savedDecks.filter((d) => d.id !== newDeck.id),
+        newDeck,
+      ],
+    })),
 
+  // Cargar las cartas de un mazo directamente en la mesa de juego
+  setActiveDeck: (cards) => set({ deck: cards }),
+
+  // Pass the turn to the next player
   nextTurn: () => 
     set((state) => {
       let nextIndex = state.currentPlayerIndex + state.turnDirection;
