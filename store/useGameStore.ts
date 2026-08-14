@@ -5,6 +5,7 @@ interface GameState {
   players: Player[];
   deck: Card[];
   discardPile: Card[];
+  savedDecks: Deck[]; // <-- AÑADIDO: Faltaba definir esto en la interfaz
   currentPlayerIndex: number;
   turnDirection: 1 | -1;
   
@@ -27,6 +28,7 @@ export const useGameStore = create<GameState>((set) => ({
   players: [],
   deck: [],
   discardPile: [],
+  savedDecks: [], // <-- AÑADIDO: Inicializamos el array vacío
   currentPlayerIndex: 0,
   turnDirection: 1,
 
@@ -262,7 +264,7 @@ export const useGameStore = create<GameState>((set) => ({
       };
     }),
     
-    saveDeck: (newDeck) =>
+  saveDeck: (newDeck) =>
     set((state) => ({
       savedDecks: [
         ...state.savedDecks.filter((d) => d.id !== newDeck.id),
@@ -270,7 +272,6 @@ export const useGameStore = create<GameState>((set) => ({
       ],
     })),
 
-  // Cargar las cartas de un mazo directamente en la mesa de juego
   setActiveDeck: (cards) => set({ deck: cards }),
 
   // Pass the turn to the next player
