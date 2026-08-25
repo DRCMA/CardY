@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "title": "CARDY Engine",
+    "home": "Main Menu",
+    "deckBuilder": "Deck Builder",
+    "collection": "My Decks",
+    "play": "Play Game"
+  },
+  "mainPage": {
+    "subtitle": " The card game creation engine",
+    "makeDeckBtn": "Create Deck",
+    "makeDeckDescription": "Create a deck of cards from scratch",
+    "playGameBtn": "Play Game"
+  },
+  "deckBuilder": {
+    "title": "Deck Builder",
+    "deckName": "Deck Name",
+    "deckNamePlaceholder": "E.g: Poker Deck",
+    "createCard": "Create New Card",
+    "editCard": "Editing Card",
+    "cardName": "Card Name",
+    "quantity": "Quantity",
+    "hasColor": "Has Color/Suit",
+    "colorPlaceholder": "E.g: Red, Hearts...",
+    "hasValue": "Has Value",
+    "valuePlaceholder": "E.g: 7, Ace, King...",
+    "hasEffects": "This card has special effects",
+    "configureEffect": "Configure New Effect",
+    "triggerLabel": "When does it trigger?",
+    "actionLabel": "What action does it perform?",
+    "descriptionLabel": "Visible description for the player",
+    "descriptionPlaceholder": "E.g: Opponent discards 1 card...",
+    "addEffectBtn": "+ Add Effect to Card",
+    "addedEffectsTitle": "Added Effects",
+    "noEffects": "No effects",
+    "saveCard": "Add to Deck",
+    "updateCard": "Save Changes",
+    "cancel": "Cancel",
+    "summaryTitle": "Deck Summary",
+    "emptyDeck": "You haven't added any cards yet.",
+    "saveFullDeck": "💾 Save Full Deck",
+    "alertNameRequired": "You need a name and at least one card to save the deck.",
+    "alertSaved": "Deck saved successfully!"
+  }
+}

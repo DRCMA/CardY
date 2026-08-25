@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "title": "CARDY Engine",
+    "home": "Menú Principal",
+    "deckBuilder": "Constructor de Mazos",
+    "collection": "Mis Mazos",
+    "play": "Jugar Partida"
+  },
+  "mainPage": {
+    "subtitle": " El motor de creación de juegos de cartas",
+    "makeDeckBtn": "Crear Mazo",
+    "makeDeckDescription": "Crea un mazo de cartas desde cero",
+    "playGameBtn": "Jugar Partida"
+  },
+  "deckBuilder": {
+    "title": "Constructor de Mazos",
+    "deckName": "Nombre del Mazo",
+    "deckNamePlaceholder": "Ej: Mazo de Poker",
+    "createCard": "Crear Nueva Carta",
+    "editCard": "Editando Carta",
+    "cardName": "Nombre de la carta",
+    "quantity": "Cantidad",
+    "hasColor": "Color/Palo",
+    "colorPlaceholder": "Ej: Rojo, Corazones...",
+    "hasValue": "Valor",
+    "valuePlaceholder": "Ej: 7, As, King...",
+    "hasEffects": "Esta carta tiene efectos especiales",
+    "configureEffect": "Configurar Nuevo Efecto",
+    "triggerLabel": "¿Cuándo se activa? (Trigger)",
+    "actionLabel": "¿Qué efecto hace? (Acción)",
+    "descriptionLabel": "Descripción visible para el jugador",
+    "descriptionPlaceholder": "Ej: El rival descarta 1 carta...",
+    "addEffectBtn": "+ Añadir Efecto a la Carta",
+    "addedEffectsTitle": "Efectos Añadidos",
+    "noEffects": "Sin efectos",
+    "saveCard": "Añadir al Mazo",
+    "updateCard": "Guardar Cambios",
+    "cancel": "Cancelar",
+    "summaryTitle": "Resumen del Mazo",
+    "emptyDeck": "No has añadido ninguna carta todavía.",
+    "saveFullDeck": "💾 Guardar Mazo Completo",
+    "alertNameRequired": "Necesitas un nombre y al menos una carta para guardar el mazo.",
+    "alertSaved": "¡Mazo guardado con éxito!"
+  }
+}

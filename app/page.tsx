@@ -1,18 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { useLanguageStore } from '@/store/useLanguageStore';
+
+
 
 export default function MainMenuPage() {
+  const { t, language, setLanguage } = useLanguageStore();
+
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 font-sans">
-      
+      <button onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}>
+        {language === 'es' ? '🇺🇸 Switch to English' : '🇪🇸 Cambiar a Español'}
+      </button>
       {/* Título Central */}
       <div className="text-center mb-12">
         <h1 className="text-6xl font-black text-yellow-400 tracking-widest drop-shadow-[0_0_15px_rgba(250,204,21,0.3)]">
           CARDY
         </h1>
         <p className="text-slate-400 mt-4 text-lg">
-          El motor de creación de juegos de cartas
+         {t('mainPage.subtitle')}
         </p>
       </div>
 
@@ -26,10 +33,10 @@ export default function MainMenuPage() {
         >
           <div>
             <h2 className="text-2xl font-bold text-emerald-400 group-hover:text-emerald-300">
-              Make Deck
+              {t('mainPage.makeDeckBtn')}
             </h2>
             <p className="text-sm text-slate-400 mt-1">
-              Crea un mazo de cartas desde cero
+              {t('mainPage.makeDeckDescription')}
             </p>
           </div>
           <span className="text-3xl">🎴</span>
@@ -39,7 +46,7 @@ export default function MainMenuPage() {
         <div className="w-full flex items-center justify-between bg-slate-900/50 border border-slate-800 p-6 rounded-2xl opacity-60 cursor-not-allowed">
           <div>
             <h2 className="text-2xl font-bold text-slate-500">
-              Play Game
+              {t('mainPage.playGameBtn')}
             </h2>
             <p className="text-sm text-slate-600 mt-1">
               Próximamente...

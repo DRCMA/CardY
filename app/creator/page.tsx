@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useGameStore } from "@/store/useGameStore";
 import { Card } from "@/types/game";
+import { useLanguageStore } from '@/store/useLanguageStore';
 
 export default function CardCreatorPage() {
+  const { t, language, setLanguage } = useLanguageStore();
   const { deck, setDeck } = useGameStore((state) => ({
     deck: state.deck,
     setDeck: (cards: Card[]) => useGameStore.setState({ deck: cards }),
